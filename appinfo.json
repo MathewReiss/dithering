@@ -1,0 +1,26 @@
+{
+    "appKeys": {
+        "dummy": 0
+    },
+    "capabilities": [
+        ""
+    ],
+    "companyName": "MathewReiss",
+    "longName": "Dithering",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "sdkVersion": "3",
+    "shortName": "Dithering",
+    "targetPlatforms": [
+        "aplite",
+        "basalt"
+    ],
+    "uuid": "09ff7ffe-945f-4b8a-a71b-7f2de78b0b44",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
