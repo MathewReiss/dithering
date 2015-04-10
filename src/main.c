@@ -4,14 +4,32 @@
 Window *my_window;
 Layer *custom_layer;
 
+int x_center = 72, y_center = 84;
+
 void draw_custom_layer(Layer *cell_layer, GContext *ctx){
 	
 	#ifdef PBL_COLOR
-		draw_gradient_rect(ctx, GRect(0,0,54,168), GColorDarkGray, GColorChromeYellow, RIGHT_TO_LEFT);
-		draw_transitioning_rect(ctx, GRect(54,0,90,168), GColorBlue, GColorIslamicGreen);
+		//draw_gradient_rect(ctx, GRect(0,0,54,168), GColorDarkGray, GColorChromeYellow, RIGHT_TO_LEFT);
+		//draw_transitioning_rect(ctx, GRect(54,0,90,168), GColorBlue, GColorIslamicGreen);
+		draw_dithered_circle(ctx, x_center, y_center, 40, GColorCobaltBlue, GColorLimerick, DITHER_25_PERCENT);
 	#else
 		draw_gradient_rect(ctx, GRect(0, 0, 144, 168), GColorBlack, GColorWhite, TOP_TO_BOTTOM);
 	#endif
+}
+
+bool moving_right = true;
+
+void move_tick(){
+	if(moving_right){
+		if(x_center < 104) x_center++;
+		else moving_right = false;
+	}
+	else{
+		if(x_center > 40) x_center--;
+		else moving_right = true;
+	}
+	layer_mark_dirty(custom_layer);
+	app_timer_register(50, move_tick, NULL);
 }
 
 void init(void){
@@ -27,11 +45,13 @@ void init(void){
 	
 	light_enable(true);
 	
-	start_transitioning_rect(custom_layer, 100);
+	app_timer_register(100, move_tick, NULL);
+	
+	//start_transitioning_rect(custom_layer, 100);
 }
 
 void deinit(void){
-	stop_transitioning_rect();
+	//stop_transitioning_rect();
 	
 	window_destroy(my_window);
 	layer_destroy(custom_layer);

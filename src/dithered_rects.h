@@ -28,7 +28,7 @@ typedef enum{
 } DitherPercentage;
 
 //=========================================================================================================================
-// DITHERING
+// DITHERED RECTS
 //=========================================================================================================================
 
 void draw_zero_percent(GContext *ctx, GRect bounds, GColor first){
@@ -113,6 +113,103 @@ void draw_dithered_rect(GContext *ctx, GRect bounds, GColor first_color, GColor 
 		case DITHER_80_PERCENT: draw_dithered_rect(ctx, bounds, second_color, first_color, DITHER_20_PERCENT); break;
 		case DITHER_90_PERCENT: draw_dithered_rect(ctx, bounds, second_color, first_color, DITHER_10_PERCENT); break;
 		case DITHER_100_PERCENT: draw_dithered_rect(ctx, bounds, second_color, first_color, DITHER_0_PERCENT); break;
+		
+		default: break;
+	}
+}
+
+//=========================================================================================================================
+// DITHERED CIRCLES
+//=========================================================================================================================
+
+void draw_zero_percent_circle(GContext *ctx, int x_center, int y_center, int radius, GColor first){
+	graphics_context_set_fill_color(ctx, first);
+	graphics_fill_circle(ctx, GPoint(x_center, y_center), radius);
+}
+
+void draw_ten_percent_circle(GContext *ctx, int x_center, int y_center, int radius, GColor first, GColor second){
+	for(int x = x_center-radius; x < x_center+radius; x++){
+		for(int y = y_center-radius; y < y_center+radius; y++){
+			if( (x%4 + y%4 == 0) || ((x+2)%4 + (y+2)%4 == 0) ) graphics_context_set_stroke_color(ctx, second);
+			else graphics_context_set_stroke_color(ctx, first);
+			
+			if((x-x_center) * (x-x_center) + (y-y_center) * (y-y_center) < radius * radius) graphics_draw_pixel(ctx, GPoint(x,y));
+		}
+	}	
+}
+
+void draw_twenty_percent_circle(GContext *ctx, int x_center, int y_center, int radius, GColor first, GColor second){
+	for(int x = x_center-radius; x < x_center+radius; x++){
+		for(int y = y_center-radius; y < y_center+radius; y++){
+			if((x+y)%2 == 0) graphics_context_set_stroke_color(ctx, second);
+			else graphics_context_set_stroke_color(ctx, first);
+			
+			if((x-x_center) * (x-x_center) + (y-y_center) * (y-y_center) < radius * radius) graphics_draw_pixel(ctx, GPoint(x,y));
+		}
+	}	
+}
+
+void draw_twenty_five_percent_circle(GContext *ctx, int x_center, int y_center, int radius, GColor first, GColor second){
+	for(int x = x_center-radius; x < x_center+radius; x++){
+		for(int y = y_center-radius; y < y_center+radius; y++){
+			if( (x%4 == 0 && y%2 == 0) || ((x+2)%4 == 0 && (y+1)%2 == 0) ) graphics_context_set_stroke_color(ctx, second);
+			else graphics_context_set_stroke_color(ctx, first);
+			
+			if((x-x_center) * (x-x_center) + (y-y_center) * (y-y_center) < radius * radius) graphics_draw_pixel(ctx, GPoint(x,y));
+		}
+	}	
+}
+
+void draw_thirty_percent_circle(GContext *ctx, int x_center, int y_center, int radius, GColor first, GColor second){
+	for(int x = x_center-radius; x < x_center+radius; x++){
+		for(int y = y_center-radius; y < y_center+radius; y++){
+			if( (x+y)%2 == 0 && ( (x+y)%4 != 0 || ( (x+y)%4 == 0 && x%2 != 0 && y%2 != 0) ) ) graphics_context_set_stroke_color(ctx, second);
+			else graphics_context_set_stroke_color(ctx, first);
+			
+			if((x-x_center) * (x-x_center) + (y-y_center) * (y-y_center) < radius * radius) graphics_draw_pixel(ctx, GPoint(x,y));
+		}
+	}	
+}
+
+void draw_forty_percent_circle(GContext *ctx, int x_center, int y_center, int radius, GColor first, GColor second){
+	for(int x = x_center-radius; x < x_center+radius; x++){
+		for(int y = y_center-radius; y < y_center+radius; y++){
+			if( (x+y)%2 == 0 && ( (x+y)%8 != 0 || ( (x+y)%8 == 0 && x%4 != 1 && y%4 != 3 ) ) ) graphics_context_set_stroke_color(ctx, second);
+			else graphics_context_set_stroke_color(ctx, first);
+			
+			if((x-x_center) * (x-x_center) + (y-y_center) * (y-y_center) < radius * radius) graphics_draw_pixel(ctx, GPoint(x,y));
+		}
+	}	
+}
+
+void draw_fifty_percent_circle(GContext *ctx, int x_center, int y_center, int radius, GColor first, GColor second){
+	for(int x = x_center-radius; x < x_center+radius; x++){
+		for(int y = y_center-radius; y < y_center+radius; y++){
+			if((x+y)%2 == 0) graphics_context_set_stroke_color(ctx, second);
+			else graphics_context_set_stroke_color(ctx, first);
+			
+			if((x-x_center) * (x-x_center) + (y-y_center) * (y-y_center) < radius * radius) graphics_draw_pixel(ctx, GPoint(x,y));
+		}
+	}
+}
+
+void draw_dithered_circle(GContext *ctx, int x_center, int y_center, int radius, GColor first_color, GColor second_color, DitherPercentage percentage){
+	switch(percentage){
+	
+		case DITHER_0_PERCENT: draw_zero_percent_circle(ctx, x_center, y_center, radius, first_color); break;
+		case DITHER_10_PERCENT: draw_ten_percent_circle(ctx, x_center, y_center, radius, first_color, second_color); break;
+		case DITHER_20_PERCENT: draw_twenty_percent_circle(ctx, x_center, y_center, radius, first_color, second_color); break;
+		case DITHER_25_PERCENT: draw_twenty_five_percent_circle(ctx, x_center, y_center, radius, first_color, second_color); break;
+		case DITHER_30_PERCENT: draw_thirty_percent_circle(ctx, x_center, y_center, radius, first_color, second_color); break;
+		case DITHER_40_PERCENT: draw_forty_percent_circle(ctx, x_center, y_center, radius, first_color, second_color); break;
+		case DITHER_50_PERCENT: draw_fifty_percent_circle(ctx, x_center, y_center, radius, first_color, second_color); break;
+		
+		case DITHER_60_PERCENT: draw_dithered_circle(ctx, x_center, y_center, radius, second_color, first_color, DITHER_40_PERCENT); break;
+		case DITHER_70_PERCENT: draw_dithered_circle(ctx, x_center, y_center, radius, second_color, first_color, DITHER_30_PERCENT); break;
+		case DITHER_75_PERCENT: draw_dithered_circle(ctx, x_center, y_center, radius, second_color, first_color, DITHER_25_PERCENT); break;
+		case DITHER_80_PERCENT: draw_dithered_circle(ctx, x_center, y_center, radius, second_color, first_color, DITHER_20_PERCENT); break;
+		case DITHER_90_PERCENT: draw_dithered_circle(ctx, x_center, y_center, radius, second_color, first_color, DITHER_10_PERCENT); break;
+		case DITHER_100_PERCENT: draw_dithered_circle(ctx, x_center, y_center, radius, second_color, first_color, DITHER_0_PERCENT); break;
 		
 		default: break;
 	}
