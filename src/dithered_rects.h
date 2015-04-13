@@ -27,6 +27,52 @@ typedef enum{
 	DITHER_100_PERCENT
 } DitherPercentage;
 
+
+//=========================================================================================================================
+// CONVERSION
+//=========================================================================================================================
+
+DitherPercentage getDitherFromPercentage(int percentage){
+	switch(percentage){
+		case 0: return DITHER_0_PERCENT;
+		case 10: return DITHER_10_PERCENT;
+		case 20: return DITHER_20_PERCENT;
+		case 25: return DITHER_25_PERCENT;
+		case 30: return DITHER_30_PERCENT;
+		case 40: return DITHER_40_PERCENT;
+		case 50: return DITHER_50_PERCENT;
+		case 60: return DITHER_60_PERCENT;
+		case 70: return DITHER_70_PERCENT;
+		case 75: return DITHER_75_PERCENT;
+		case 80: return DITHER_80_PERCENT;
+		case 90: return DITHER_90_PERCENT;
+		case 100: return DITHER_100_PERCENT;
+		default: return DITHER_0_PERCENT;
+	}
+}
+
+int getPercentageFromDither(DitherPercentage dither){
+	switch(dither){
+	
+		case DITHER_0_PERCENT: return 0;
+		case DITHER_10_PERCENT: return 10;
+		case DITHER_20_PERCENT: return 20;
+		case DITHER_25_PERCENT: return 25;
+		case DITHER_30_PERCENT: return 30;
+		case DITHER_40_PERCENT: return 40;
+		case DITHER_50_PERCENT: return 50;
+		
+		case DITHER_60_PERCENT: return 60;
+		case DITHER_70_PERCENT: return 70;
+		case DITHER_75_PERCENT: return 75;
+		case DITHER_80_PERCENT: return 80;
+		case DITHER_90_PERCENT: return 90;
+		case DITHER_100_PERCENT: return 100;
+		
+		default: return 0;
+	}
+}
+
 //=========================================================================================================================
 // DITHERED RECTS
 //=========================================================================================================================
@@ -116,6 +162,65 @@ void draw_dithered_rect(GContext *ctx, GRect bounds, GColor first_color, GColor 
 		
 		default: break;
 	}
+}
+
+//=========================================================================================================================
+// RANDOM DITHERED RECTS
+//=========================================================================================================================
+
+void init_rand(){
+	srand(time(NULL));
+}
+
+void draw_random_dithered_rect(GContext *ctx, GRect bounds, GColor first_color, GColor second_color, DitherPercentage dither){
+	int x_start = bounds.origin.x;
+	int y_start = bounds.origin.y;
+	int width = bounds.size.w;
+	int height = bounds.size.h;
+	
+	int probability = getPercentageFromDither(dither);
+	
+	for(int x = x_start; x < x_start + width; x++){
+		for(int y = y_start; y < y_start + height; y++){
+			if(rand()%100 < probability) graphics_context_set_stroke_color(ctx, second_color);
+			else graphics_context_set_stroke_color(ctx, first_color);
+			graphics_draw_pixel(ctx, GPoint(x, y));
+		}
+	}
+}
+//draw_dithered_rect(ctx, GRect(x_start+(i*width/110)-1, y_start, 1+width/11, height), first, second, getDitherFromPercentage(i));
+void draw_random_gradient_rect(GContext *ctx, GRect bounds, GColor first_color, GColor second_color, GradientDirection gradient){
+	int x_start = bounds.origin.x;
+	int y_start = bounds.origin.y;
+	int width = bounds.size.w;
+	int height = bounds.size.h;
+
+	if(gradient == TOP_TO_BOTTOM){
+		if(height >= 55){
+			for(int i = 0; i < 11; i++){
+				draw_random_dithered_rect(ctx, GRect(x_start, y_start+(i*height/11)-1, width, 1+height/11), first_color, second_color, getDitherFromPercentage(i*10));
+			}
+		}
+		else{
+			for(int i = 0; i < 5; i++){
+				draw_random_dithered_rect(ctx, GRect(x_start, y_start+(i*height/5)-1, width, 1+height/5), first_color, second_color, getDitherFromPercentage(i*25));
+			}
+		}	
+	}
+	else if(gradient == LEFT_TO_RIGHT){
+		if(width >= 55){
+			for(int i = 0; i < 11; i++){
+				draw_random_dithered_rect(ctx, GRect(x_start+(i*width/11)-1, y_start, 1+width/11, height), first_color, second_color, getDitherFromPercentage(i*10));
+			}
+		}
+		else{
+			for(int i = 0; i < 5; i++){
+				draw_random_dithered_rect(ctx, GRect(x_start+(i*width/5)-1, y_start, 1+width/5, height), first_color, second_color, getDitherFromPercentage(i*25));
+			}
+		}
+	}
+	else if(gradient == BOTTOM_TO_TOP) draw_random_gradient_rect(ctx, bounds, second_color, first_color, TOP_TO_BOTTOM);
+	else if(gradient == RIGHT_TO_LEFT) draw_random_gradient_rect(ctx, bounds, second_color, first_color, LEFT_TO_RIGHT);
 }
 
 //=========================================================================================================================
@@ -284,25 +389,6 @@ void stop_transitioning_rect(){
 //=========================================================================================================================
 // GRADIENTS
 //=========================================================================================================================
-
-DitherPercentage getDitherFromPercentage(int percentage){
-	switch(percentage){
-		case 0: return DITHER_0_PERCENT;
-		case 10: return DITHER_10_PERCENT;
-		case 20: return DITHER_20_PERCENT;
-		case 25: return DITHER_25_PERCENT;
-		case 30: return DITHER_30_PERCENT;
-		case 40: return DITHER_40_PERCENT;
-		case 50: return DITHER_50_PERCENT;
-		case 60: return DITHER_60_PERCENT;
-		case 70: return DITHER_70_PERCENT;
-		case 75: return DITHER_75_PERCENT;
-		case 80: return DITHER_80_PERCENT;
-		case 90: return DITHER_90_PERCENT;
-		case 100: return DITHER_100_PERCENT;
-		default: return DITHER_0_PERCENT;
-	}
-}
 
 void draw_top_to_bottom(GContext *ctx, int x_start, int y_start, int width, int height, GColor first, GColor second){
 	if(height >= 55){
