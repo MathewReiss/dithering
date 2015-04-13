@@ -7,18 +7,42 @@ Layer *custom_layer;
 int x_center = 72, y_center = 84;
 
 void draw_custom_layer(Layer *cell_layer, GContext *ctx){
+		
 	
 	#ifdef PBL_COLOR
-		//draw_gradient_rect(ctx, GRect(0,0,54,168), GColorDarkGray, GColorChromeYellow, RIGHT_TO_LEFT);
+		//draw_gradient_rect(ctx, GRect(0,0,144,168), GColorDarkGray, GColorClear, BOTTOM_TO_TOP);
 		//draw_transitioning_rect(ctx, GRect(54,0,90,168), GColorBlue, GColorIslamicGreen);
-		//draw_dithered_circle(ctx, x_center, y_center, 40, GColorCobaltBlue, GColorLimerick, DITHER_20_PERCENT);	
+		//draw_dithered_circle(ctx, x_center, y_center, 40, GColorCobaltBlue, GColorClear, DITHER_20_PERCENT);	
 		//draw_dithered_circle(ctx, x_center, y_center, 35, GColorCobaltBlue, GColorLimerick, DITHER_25_PERCENT);
 		
-		draw_random_gradient_rect(ctx, GRect(0,0,72,168), GColorCobaltBlue, GColorPictonBlue, TOP_TO_BOTTOM);
-		draw_gradient_rect(ctx, GRect(72,0,72,168), GColorCobaltBlue, GColorPictonBlue, TOP_TO_BOTTOM);
+		//draw_random_gradient_rect(ctx, GRect(0,0,72,168), GColorCobaltBlue, GColorPictonBlue, TOP_TO_BOTTOM);
+		//draw_gradient_rect(ctx, GRect(72,0,72,168), GColorCobaltBlue, GColorPictonBlue, TOP_TO_BOTTOM);
+		
+		draw_dithered_rect(ctx, GRect(0,84,144,84), GColorBlack, GColorBlack, DITHER_0_PERCENT);
+	
+		draw_dithered_rect(ctx, GRect(0,0,35,84), GColorBlack, GColorBlack, DITHER_0_PERCENT);
+		draw_dithered_rect(ctx, GRect(0,84,35,84), GColorWhite, GColorWhite, DITHER_0_PERCENT);
+	
+		draw_dithered_rect(ctx, GRect(36,0,35,56), GColorBlack, GColorBlack, DITHER_0_PERCENT);
+		draw_dithered_rect(ctx, GRect(36,56,35,56), GColorBlack, GColorWhite, DITHER_50_PERCENT);
+		draw_dithered_rect(ctx, GRect(36,112,35,56), GColorWhite, GColorWhite, DITHER_0_PERCENT);
+	
+		draw_dithered_rect(ctx, GRect(72,0,35,42), GColorBlack, GColorBlack, DITHER_0_PERCENT);
+		draw_dithered_rect(ctx, GRect(72,42,35,42), GColorDarkGray, GColorDarkGray, DITHER_0_PERCENT);
+		draw_dithered_rect(ctx, GRect(72,84,35,42), GColorLightGray, GColorLightGray, DITHER_0_PERCENT);
+		draw_dithered_rect(ctx, GRect(72,126,35,42), GColorWhite, GColorWhite, DITHER_0_PERCENT);
+		
+		draw_dithered_rect(ctx, GRect(108,0,36,24), GColorBlack, GColorDarkGray, DITHER_0_PERCENT);
+		draw_dithered_rect(ctx, GRect(108,24,36,24), GColorBlack, GColorDarkGray, DITHER_50_PERCENT);
+		draw_dithered_rect(ctx, GRect(108,48,36,24), GColorDarkGray, GColorLightGray, DITHER_0_PERCENT);
+		draw_dithered_rect(ctx, GRect(108,72,36,24), GColorDarkGray, GColorLightGray, DITHER_50_PERCENT);
+		draw_dithered_rect(ctx, GRect(108,96,36,24), GColorLightGray, GColorWhite, DITHER_0_PERCENT);
+		draw_dithered_rect(ctx, GRect(108,120,36,24), GColorLightGray, GColorWhite, DITHER_50_PERCENT);
+		draw_dithered_rect(ctx, GRect(108,144,36,24), GColorWhite, GColorWhite, DITHER_0_PERCENT);
+		
 	#else
-		draw_dithered_circle(ctx, x_center, y_center, 40, GColorBlack, GColorWhite, DITHER_20_PERCENT);	
-		draw_dithered_circle(ctx, x_center, y_center, 35, GColorBlack, GColorWhite, DITHER_25_PERCENT);
+		//draw_gradient_rect(ctx, GRect(0,0,144,168), GColorBlack, GColorClear, BOTTOM_TO_TOP);
+		//draw_dithered_rect(ctx, GRect(0,0,, GColor first_color, GColor second_color, DitherPercentage percentage)
 	#endif
 }
 
