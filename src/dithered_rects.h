@@ -1,4 +1,5 @@
 #include <pebble.h>
+//From https://github.com/MathewReiss/dithering
 
 typedef enum{
 	TOP_TO_BOTTOM,
@@ -331,54 +332,66 @@ Layer *custom_layer;
 bool increasing = true;
 DitherPercentage current_dither = DITHER_0_PERCENT;
 int transition_delay = 500;
+int transition_loops = 0;
+int loop_count = 0;
 
 void tick(){
-	if(increasing){
-		switch(current_dither){
-			case DITHER_0_PERCENT: current_dither = DITHER_10_PERCENT; break;
-			case DITHER_10_PERCENT: current_dither = DITHER_20_PERCENT; break;
-			case DITHER_20_PERCENT: current_dither = DITHER_30_PERCENT; break;
-			case DITHER_30_PERCENT: current_dither = DITHER_40_PERCENT; break;
-			case DITHER_40_PERCENT: current_dither = DITHER_50_PERCENT; break;
-			case DITHER_50_PERCENT: current_dither = DITHER_60_PERCENT; break;
-			case DITHER_60_PERCENT: current_dither = DITHER_70_PERCENT; break;
-			case DITHER_70_PERCENT: current_dither = DITHER_80_PERCENT; break;
-			case DITHER_80_PERCENT: current_dither = DITHER_90_PERCENT; break;
-			case DITHER_90_PERCENT: current_dither = DITHER_100_PERCENT; break;
-			case DITHER_100_PERCENT: increasing = false; current_dither = DITHER_90_PERCENT; break;
-			default: break;
-		}	
-	}
-	else{
-		switch(current_dither){
-			case DITHER_0_PERCENT: increasing = true; current_dither = DITHER_10_PERCENT; break;
-			case DITHER_10_PERCENT: current_dither = DITHER_0_PERCENT; break;
-			case DITHER_20_PERCENT: current_dither = DITHER_10_PERCENT; break;
-			case DITHER_30_PERCENT: current_dither = DITHER_20_PERCENT; break;
-			case DITHER_40_PERCENT: current_dither = DITHER_30_PERCENT; break;
-			case DITHER_50_PERCENT: current_dither = DITHER_40_PERCENT; break;
-			case DITHER_60_PERCENT: current_dither = DITHER_50_PERCENT; break;
-			case DITHER_70_PERCENT: current_dither = DITHER_60_PERCENT; break;
-			case DITHER_80_PERCENT: current_dither = DITHER_70_PERCENT; break;
-			case DITHER_90_PERCENT: current_dither = DITHER_80_PERCENT; break;
-			case DITHER_100_PERCENT: current_dither = DITHER_90_PERCENT; break;
-			default: break;
-		}			
-	}
+	if(transition_loops == 0 || loop_count < transition_loops) {
+		if(increasing){
+			switch(current_dither){
+				case DITHER_0_PERCENT: current_dither = DITHER_10_PERCENT; break;
+				case DITHER_10_PERCENT: current_dither = DITHER_20_PERCENT; break;
+				case DITHER_20_PERCENT: current_dither = DITHER_30_PERCENT; break;
+				case DITHER_30_PERCENT: current_dither = DITHER_40_PERCENT; break;
+				case DITHER_40_PERCENT: current_dither = DITHER_50_PERCENT; break;
+				case DITHER_50_PERCENT: current_dither = DITHER_60_PERCENT; break;
+				case DITHER_60_PERCENT: current_dither = DITHER_70_PERCENT; break;
+				case DITHER_70_PERCENT: current_dither = DITHER_80_PERCENT; break;
+				case DITHER_80_PERCENT: current_dither = DITHER_90_PERCENT; break;
+				case DITHER_90_PERCENT: 
+					current_dither = DITHER_100_PERCENT;
+					loop_count++;
+					break;
+				case DITHER_100_PERCENT: increasing = false; current_dither = DITHER_90_PERCENT; break;
+				default: break;
+			}	
+		}
+		else{
+			switch(current_dither){
+				case DITHER_0_PERCENT: increasing = true; current_dither = DITHER_10_PERCENT; break;
+				case DITHER_10_PERCENT: 
+					current_dither = DITHER_0_PERCENT; 
+					loop_count++;
+					break;
+				case DITHER_20_PERCENT: current_dither = DITHER_10_PERCENT; break;
+				case DITHER_30_PERCENT: current_dither = DITHER_20_PERCENT; break;
+				case DITHER_40_PERCENT: current_dither = DITHER_30_PERCENT; break;
+				case DITHER_50_PERCENT: current_dither = DITHER_40_PERCENT; break;
+				case DITHER_60_PERCENT: current_dither = DITHER_50_PERCENT; break;
+				case DITHER_70_PERCENT: current_dither = DITHER_60_PERCENT; break;
+				case DITHER_80_PERCENT: current_dither = DITHER_70_PERCENT; break;
+				case DITHER_90_PERCENT: current_dither = DITHER_80_PERCENT; break;
+				case DITHER_100_PERCENT: current_dither = DITHER_90_PERCENT; break;
+				default: break;
+			}			
+		}
+		layer_mark_dirty(custom_layer);
 	
-	layer_mark_dirty(custom_layer);
-	
-	transition_timer = app_timer_register(transition_delay, tick, NULL);	
+		transition_timer = app_timer_register(transition_delay, tick, NULL);
+	} else {
+		app_timer_cancel(transition_timer);
+	}
 }
 
 void draw_transitioning_rect(GContext *ctx, GRect bounds, GColor first_color, GColor second_color){
 	draw_dithered_rect(ctx, bounds, first_color, second_color, current_dither);
 }
 
-void start_transitioning_rect(Layer *layer, int delay){
+void start_transitioning_rect(Layer *layer, int delay, int loops){
 	custom_layer = layer;
 	
 	transition_delay = delay;
+	transition_loops = loops;
 	transition_timer = app_timer_register(transition_delay, tick, NULL);
 }
 
