@@ -28,7 +28,6 @@ typedef enum{
 	DITHER_100_PERCENT
 } DitherPercentage;
 
-
 //=========================================================================================================================
 // CONVERSION
 //=========================================================================================================================
@@ -447,3 +446,89 @@ void draw_gradient_rect(GContext *ctx, GRect bounds, GColor first_color, GColor 
 		default: break;
 	}
 }
+
+//=========================================================================================================================
+// COLOR ARRAY FROM SINGLE HEX VALUE
+//=========================================================================================================================
+
+#ifdef PBL_COLOR
+int getNearestRGBInt(int c){
+	if(c <= (85/2)) return 0;
+	else if(c <= (85+85/2)) return 85;
+	else if(c <= (170+85/2)) return 170;
+	else return 255;
+}	
+
+int getUpperRGBInt(int c){
+	if(c == 0) return 0;
+	if(c <= 85) return 85;
+	else if(c <= 170) return 170;
+	else if(c <= 255) return 255;
+
+	else return 255;
+}
+
+int getLowerRGBInt(int c){
+	if(c == 255) return 255;
+	if(c >= 170) return 170;
+	else if(c >= 85) return 85;
+	else if(c >= 0) return 0;
+	
+	else return 0;
+}
+
+int getUpperOrNearestRGBInt(int c){
+	if(c >= 128) return getUpperRGBInt(c);
+	else return getNearestRGBInt(c);
+}
+
+int getLowerOrNearestRGBInt(int c){
+	if(c < 128) return getLowerRGBInt(c);
+	return getNearestRGBInt(c);
+}
+	
+GColor getFirstGColorFromRGB(int r, int g, int b){
+	return GColorFromRGB(getUpperRGBInt(r), getUpperRGBInt(g), getUpperRGBInt(b));
+}
+
+GColor getSecondGColorFromRGB(int r, int g, int b){
+	return GColorFromRGB(getLowerRGBInt(r), getLowerRGBInt(g), getLowerRGBInt(b));
+}
+
+DitherPercentage getRecommendedDitherPercentage(int r_0, int g_0, int b_0, GColor first, GColor second){
+	int r_1 = 85*first.r;
+	int g_1 = 85*first.g;
+	int b_1 = 85*first.b;
+	
+	int r_2 = 85*second.r;
+	int g_2 = 85*second.g;
+	int b_2 = 85*second.b;
+	
+	int product_0 = r_0*r_0 + g_0*g_0 + b_0*b_0;
+	int product_1 = r_1*r_1 + g_1*g_1 + b_1*b_1;
+	int product_2 = r_2*r_2 + g_2*g_2 + b_2*b_2;
+	
+	int range = product_1 - product_2;
+	int rel_val = product_0 - product_2;
+	int tar_percent = abs( 10 * ( ( 10 * rel_val ) / range ) );
+	
+	return getDitherFromPercentage(tar_percent);
+}
+
+void draw_dithered_rect_from_RGB(GContext *ctx, GRect bounds, int r, int g, int b){
+	GColor first = getFirstGColorFromRGB(r, g, b);
+	GColor second = getSecondGColorFromRGB(r, g, b);
+	DitherPercentage recommended = getRecommendedDitherPercentage(r, g, b, first, second);
+	
+	draw_dithered_rect(ctx, bounds, first, second, recommended);
+}
+
+void draw_dithered_rect_from_HEX(GContext *ctx, GRect bounds, int hex){
+	int r_from_hex = ( ( hex >> 16 ) & 0xFF ) / 255;
+	int g_from_hex = ( ( hex >> 8 ) & 0xFF ) / 255;
+	int b_from_hex = ( ( hex ) & 0xFF ) / 255;
+	
+	draw_dithered_rect_from_RGB(ctx, bounds, r_from_hex, g_from_hex, b_from_hex);
+}
+#endif
+
