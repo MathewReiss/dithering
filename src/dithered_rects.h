@@ -530,5 +530,241 @@ void draw_dithered_rect_from_HEX(GContext *ctx, GRect bounds, int hex){
 	
 	draw_dithered_rect_from_RGB(ctx, bounds, r_from_hex, g_from_hex, b_from_hex);
 }
-#endif
 
+
+/******************************************************************************************
+************************* DRAW MASKED DITHEREDED COLORS (including texts)******************
+*********************************** (by Yuriy)*********************************************/
+
+
+/*********************** UTILITY FUNCTIONS *********************/  
+
+// helper function that finds inverted color;  
+GColor color_inverted(GColor source) {
+  GColor inverted = source;
+  if(gcolor_equal(source, GColorBlack)) 
+    inverted= GColorWhite;
+  if(gcolor_equal(source, GColorWhite))
+    inverted= GColorBlack;
+  if(!gcolor_equal(source, GColorClear)) //GColorClear should not change
+      inverted.argb= source.argb ^ 0b00111111;
+  return inverted;
+}     
+  
+// set pixel color at given coordinates 
+void set_pixel(uint8_t *bitmap_data, int bytes_per_row, int y, int x, uint8_t color) {
+   bitmap_data[y*bytes_per_row + x] = color; // in Basalt - simple set entire byte
+}
+
+// get pixel color at given coordinates 
+uint8_t get_pixel(uint8_t *bitmap_data, int bytes_per_row, int y, int x) {
+   return bitmap_data[y*bytes_per_row + x]; // in Basalt - simple get entire byte
+}
+
+
+/*********************** Dithering Functions based on dithered_rects.h *********************/  
+
+void draw_zero_percent_mask(uint8_t *bitmap_data, int bytes_per_row, int x_start, int y_start, int width, int height, GColor first, GColor mask){
+  GColor temp_pixel;
+  
+	for(int x = 0; x < width; x++){
+		for(int y = 0; y < height; y++){
+      
+      temp_pixel = (GColor)get_pixel(bitmap_data, bytes_per_row, y + y_start, x + x_start);
+      
+      if (gcolor_equal(temp_pixel, mask)) {
+        set_pixel(bitmap_data, bytes_per_row, y + y_start, x + x_start, first.argb);
+      }
+      
+		}
+	}  
+}
+
+void draw_ten_percent_mask(uint8_t *bitmap_data, int bytes_per_row, int x_start, int y_start, int width, int height, GColor first, GColor second, GColor mask){
+  GColor temp_pixel;
+  
+	for(int x = 0; x < width; x++){
+		for(int y = 0; y < height; y++){
+      
+      temp_pixel = (GColor)get_pixel(bitmap_data, bytes_per_row, y + y_start, x + x_start);
+      
+      if (gcolor_equal(temp_pixel, mask)) {
+  			if((x%8 == 0 && y%4 == 0) || ((x+4)%8 == 0 && (y+2)%4 == 0)) temp_pixel = second;
+  			else temp_pixel = first;
+  			
+        set_pixel(bitmap_data, bytes_per_row, y + y_start, x + x_start, temp_pixel.argb);
+      }
+      
+		}
+	}  
+}
+
+void draw_twenty_percent_mask(uint8_t *bitmap_data, int bytes_per_row, int x_start, int y_start, int width, int height, GColor first, GColor second, GColor mask){
+  GColor temp_pixel;
+  
+	for(int x = 0; x < width; x++){
+		for(int y = 0; y < height; y++){
+      
+      temp_pixel = (GColor)get_pixel(bitmap_data, bytes_per_row, y + y_start, x + x_start);
+      
+      if (gcolor_equal(temp_pixel, mask)) {
+  			if((x%4 + y%4 == 0) || ((x+2)%4 + (y+2)%4 == 0)) temp_pixel = second;
+  			else temp_pixel = first;
+  			
+        set_pixel(bitmap_data, bytes_per_row, y + y_start, x + x_start, temp_pixel.argb);
+      }
+      
+		}
+	}    
+}
+
+void draw_twenty_five_percent_mask(uint8_t *bitmap_data, int bytes_per_row, int x_start, int y_start, int width, int height, GColor first, GColor second, GColor mask){
+  GColor temp_pixel;
+  
+	for(int x = 0; x < width; x++){
+		for(int y = 0; y < height; y++){
+      
+      temp_pixel = (GColor)get_pixel(bitmap_data, bytes_per_row, y + y_start, x + x_start);
+      
+      if (gcolor_equal(temp_pixel, mask)) {
+  			if((x%4 == 0 && y%2 == 0) || ((x+2)%4 == 0 && (y+1)%2 == 0)) temp_pixel = second;
+  			else temp_pixel = first;
+  			
+        set_pixel(bitmap_data, bytes_per_row, y + y_start, x + x_start, temp_pixel.argb);
+      }
+      
+		}
+	}      
+}
+
+void draw_thirty_percent_mask(uint8_t *bitmap_data, int bytes_per_row, int x_start, int y_start, int width, int height, GColor first, GColor second, GColor mask){
+
+GColor temp_pixel;
+  
+	for(int x = 0; x < width; x++){
+		for(int y = 0; y < height; y++){
+      
+      temp_pixel = (GColor)get_pixel(bitmap_data, bytes_per_row, y + y_start, x + x_start);
+      
+      if (gcolor_equal(temp_pixel, mask)) {
+  			if( (x+y)%2 == 0 && ( (x+y)%4 != 0 || ( (x+y)%4 == 0 && x%2 != 0 && y%2 != 0) ) ) temp_pixel = second;
+  			else temp_pixel = first;
+  			
+        set_pixel(bitmap_data, bytes_per_row, y + y_start, x + x_start, temp_pixel.argb);
+      }
+      
+		}
+	}    
+}
+
+void draw_forty_percent_mask(uint8_t *bitmap_data, int bytes_per_row, int x_start, int y_start, int width, int height, GColor first, GColor second, GColor mask){
+  GColor temp_pixel;
+  
+	for(int x = 0; x < width; x++){
+		for(int y = 0; y < height; y++){
+      
+      temp_pixel = (GColor)get_pixel(bitmap_data, bytes_per_row, y + y_start, x + x_start);
+      
+      if (gcolor_equal(temp_pixel, mask)) {
+  			if( (x+y)%2 == 0 && ( (x+y)%8 != 0 || ( (x+y)%8 == 0 && x%4 != 1 && y%4 != 3 ) ) ) temp_pixel = second;
+  			else temp_pixel = first;
+  			
+        set_pixel(bitmap_data, bytes_per_row, y + y_start, x + x_start, temp_pixel.argb);
+      }
+      
+		}
+	}
+}
+
+void draw_fifty_percent_mask(uint8_t *bitmap_data, int bytes_per_row, int x_start, int y_start, int width, int height, GColor first, GColor second, GColor mask){
+  GColor temp_pixel;
+  
+	for(int x = 0; x < width; x++){
+		for(int y = 0; y < height; y++){
+      
+      temp_pixel = (GColor)get_pixel(bitmap_data, bytes_per_row, y + y_start, x + x_start);
+      
+      if (gcolor_equal(temp_pixel, mask)) {
+  			if((x+y)%2 == 0) temp_pixel = second;
+  			else temp_pixel = first;
+  			
+        set_pixel(bitmap_data, bytes_per_row, y + y_start, x + x_start, temp_pixel.argb);
+      }
+      
+		}
+	}
+}
+
+void draw_dithered_mask(uint8_t *bitmap_data, int bytes_per_row, GRect bounds, GColor first_color, GColor second_color, GColor mask_color, DitherPercentage percentage){
+	switch(percentage){
+	
+		case DITHER_0_PERCENT: draw_zero_percent_mask(bitmap_data, bytes_per_row, bounds.origin.x, bounds.origin.y, bounds.size.w, bounds.size.h, first_color, mask_color); break;
+		case DITHER_10_PERCENT: draw_ten_percent_mask(bitmap_data, bytes_per_row, bounds.origin.x, bounds.origin.y, bounds.size.w, bounds.size.h, first_color, second_color, mask_color); break;
+		case DITHER_20_PERCENT: draw_twenty_percent_mask(bitmap_data, bytes_per_row, bounds.origin.x, bounds.origin.y, bounds.size.w, bounds.size.h, first_color, second_color, mask_color); break;
+		case DITHER_25_PERCENT: draw_twenty_five_percent_mask(bitmap_data, bytes_per_row, bounds.origin.x, bounds.origin.y, bounds.size.w, bounds.size.h, first_color, second_color, mask_color); break;
+		case DITHER_30_PERCENT: draw_thirty_percent_mask(bitmap_data, bytes_per_row, bounds.origin.x, bounds.origin.y, bounds.size.w, bounds.size.h, first_color, second_color, mask_color); break;
+		case DITHER_40_PERCENT: draw_forty_percent_mask(bitmap_data, bytes_per_row, bounds.origin.x, bounds.origin.y, bounds.size.w, bounds.size.h, first_color, second_color, mask_color); break;
+		case DITHER_50_PERCENT: draw_fifty_percent_mask(bitmap_data, bytes_per_row, bounds.origin.x, bounds.origin.y, bounds.size.w, bounds.size.h, first_color, second_color, mask_color); break;
+		
+		case DITHER_60_PERCENT: draw_dithered_mask(bitmap_data, bytes_per_row, bounds, second_color, first_color, mask_color, DITHER_40_PERCENT); break;
+		case DITHER_70_PERCENT: draw_dithered_mask(bitmap_data, bytes_per_row, bounds, second_color, first_color, mask_color, DITHER_30_PERCENT); break;
+		case DITHER_75_PERCENT: draw_dithered_mask(bitmap_data, bytes_per_row, bounds, second_color, first_color, mask_color, DITHER_25_PERCENT); break;
+		case DITHER_80_PERCENT: draw_dithered_mask(bitmap_data, bytes_per_row, bounds, second_color, first_color, mask_color, DITHER_20_PERCENT); break;
+		case DITHER_90_PERCENT: draw_dithered_mask(bitmap_data, bytes_per_row, bounds, second_color, first_color, mask_color, DITHER_10_PERCENT); break;
+		case DITHER_100_PERCENT: draw_dithered_mask(bitmap_data, bytes_per_row, bounds, second_color, first_color, mask_color, DITHER_0_PERCENT); break;
+		
+		default: break;
+	}
+}
+
+
+
+
+/*********************** Drawing dithered text *********************/ 
+
+
+// draws dithered text  
+// First 6 params same as for "graphics_draw_text"
+// background color: pass color of the background
+// first_color, second_color, percentage, same as for draw_dithered_rect
+void draw_dithered_text(GContext *ctx, const char * text, GFont font, GRect bounds, GTextOverflowMode overflow_mode, GTextAlignment alignment, GTextLayoutCacheRef layout, 
+                        GColor background_color, 
+                        GColor first_color, GColor second_color, DitherPercentage percentage){
+  
+  // initially drawing text in inverted color
+  GColor mask_color = color_inverted(background_color);
+  graphics_context_set_text_color(ctx, mask_color);
+  graphics_draw_text(ctx, text, font, bounds, overflow_mode, alignment, layout);
+  
+  //capturing framebuffer bitmap
+  GBitmap *fb = graphics_capture_frame_buffer(ctx);
+  uint8_t *bitmap_data =  gbitmap_get_data(fb);
+  int bytes_per_row = gbitmap_get_bytes_per_row(fb);
+
+  //drawing dithered mask over text 
+  draw_dithered_mask(bitmap_data, bytes_per_row, bounds, first_color, second_color, mask_color, percentage);
+  
+  //releasing framebuffer
+  graphics_release_frame_buffer(ctx, fb);
+  
+}  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#endif
