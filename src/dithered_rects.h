@@ -749,15 +749,15 @@ void draw_dithered_text(GContext *ctx, const char * text, GFont font, GRect boun
   
 }  
 
-/*********************** Drawing dithered text from RGB *********************/ 
 
-void draw_dithered_text_from_RGB(GContext *ctx, const char * text, GFont font, GRect bounds, GTextOverflowMode overflow_mode, GTextAlignment alignment, GTextLayoutCacheRef layout,
-								GColor background_color, int r, int g, int b){
-	GColor first = getFirstGColorFromRGB(r, g, b);
-	GColor second = getSecondGColorFromRGB(r, g, b);
-	DitherPercentage percent = getRecommendedDitherPercentage(r, g, b, first, second);
-	
-	draw_dithered_text(ctx, text, font, bounds, overflow_mode, alignment, layout, background_color, first, second, percent);
-}
+
+
+
+
+
+
+
+
+
 
 #endif
