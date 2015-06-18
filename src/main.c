@@ -22,10 +22,25 @@ void draw_custom_layer(Layer *cell_layer, GContext *ctx){
     
     ///********* YG TESTS JUN-17-2015
 		// draw_dithered_rect_from_RGB(ctx, GRect(140,0,144,20), 255, 55, 36);
-    draw_dithered_rect(ctx, GRect(0,140,144,20), GColorOxfordBlue, GColorChromeYellow, DITHER_50_PERCENT);
+    // draw_dithered_rect(ctx, GRect(0,140,144,20), GColorBlue, GColorYellow, DITHER_50_PERCENT);
   
-    draw_dithered_text(ctx, "HELLO WORLD", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,50,130,100), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL, 
-                      GColorWhite,  GColorOxfordBlue, GColorChromeYellow, DITHER_50_PERCENT);
+    draw_dithered_text_from_RGB(ctx, "HELLO", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,10,130,30), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL, 
+                      GColorOxfordBlue, 255, 0, 0 );
+    
+    draw_dithered_text_from_RGB(ctx, "WORLD", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,40,130,30), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL, 
+                  GColorOxfordBlue, 255, 106, 0 );
+  
+    draw_dithered_text_from_RGB(ctx, "IN FULL", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,70,130,30), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL, 
+                  GColorOxfordBlue, 0, 38,  255  );
+  
+    draw_dithered_text_from_RGB(ctx, "DITHER", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,100,130,30), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL, 
+                  GColorOxfordBlue, 0, 19, 127 );
+  
+    draw_dithered_text_from_RGB(ctx, "COLOR", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,130,130,30), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL, 
+                  GColorOxfordBlue, 255, 255, 255 );
+
+
+  
     ///***********
   
   
@@ -90,7 +105,8 @@ void color_tick(){
 	
 	layer_mark_dirty(custom_layer);
 	
-	app_timer_register(15000, color_tick, NULL);
+  // YG test: not doing refresh
+	//app_timer_register(100, color_tick, NULL);
 }
 
 void init(void){
@@ -106,6 +122,12 @@ void init(void){
 	
 	layer_add_child(window_get_root_layer(my_window), custom_layer);
 	
+  #ifndef PBL_COLOR
+    window_set_background_color(my_window, GColorBlack);
+  #else
+    window_set_background_color(my_window, GColorOxfordBlue);
+  #endif
+    
 	window_stack_push(my_window, true);
 	
 	light_enable(true);
