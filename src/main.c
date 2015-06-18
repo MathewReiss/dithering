@@ -8,8 +8,11 @@ int x_center = 72, y_center = 84;
 
 int r_rand = 0, g_rand = 0, b_rand = 0;
 
+GColor bg;
+
 void draw_custom_layer(Layer *cell_layer, GContext *ctx){
-		
+		graphics_context_set_fill_color(ctx, bg);
+		graphics_fill_rect(ctx, GRect(0,0,144,168), 0, GCornerNone);
 	#ifdef PBL_COLOR
 		//int r_target = 25/*153*/, g_target = 71/*255*/, b_target = 25/*153*/;
 		//GColor first = getFirstGColorFromRGB(r_target, g_target, b_target);
@@ -22,10 +25,10 @@ void draw_custom_layer(Layer *cell_layer, GContext *ctx){
     
     ///********* YG TESTS JUN-17-2015
 		// draw_dithered_rect_from_RGB(ctx, GRect(140,0,144,20), 255, 55, 36);
-    draw_dithered_rect(ctx, GRect(0,140,144,20), GColorOxfordBlue, GColorChromeYellow, DITHER_50_PERCENT);
+    draw_dithered_rect_from_RGB(ctx, GRect(0,140,144,20), r_rand, g_rand, b_rand);
   
-    draw_dithered_text(ctx, "HELLO WORLD", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,50,130,100), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL, 
-                      GColorWhite,  GColorOxfordBlue, GColorChromeYellow, DITHER_50_PERCENT);
+    draw_dithered_text_from_RGB(ctx, "HELLO WORLD", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,50,130,100), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL, 
+                      bg,  r_rand, g_rand, b_rand);
     ///***********
   
   
@@ -86,11 +89,14 @@ void color_tick(){
 	g_rand = rand()%255;
 	b_rand = rand()%255;
 	
+	if(r_rand + g_rand + b_rand > 382) bg = GColorBlack;
+	else bg = GColorWhite;
+	
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "%03d,%03d,%03d", r_rand, g_rand, b_rand);
 	
 	layer_mark_dirty(custom_layer);
 	
-	app_timer_register(15000, color_tick, NULL);
+	app_timer_register(3000, color_tick, NULL);
 }
 
 void init(void){
@@ -100,6 +106,8 @@ void init(void){
 	//window_set_fullscreen(my_window, true);
 	
 	//init_rand();
+	
+	bg = GColorWhite;
 	
 	custom_layer = layer_create(GRect(0,0,144,168));
 	layer_set_update_proc(custom_layer, draw_custom_layer);
