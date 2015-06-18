@@ -11,8 +11,8 @@ int r_rand = 0, g_rand = 0, b_rand = 0;
 GColor bg;
 
 void draw_custom_layer(Layer *cell_layer, GContext *ctx){
-		graphics_context_set_fill_color(ctx, bg);
-		graphics_fill_rect(ctx, GRect(0,0,144,168), 0, GCornerNone);
+		//graphics_context_set_fill_color(ctx, bg);
+		//graphics_fill_rect(ctx, GRect(0,0,144,168), 0, GCornerNone);
 	#ifdef PBL_COLOR
 		//int r_target = 25/*153*/, g_target = 71/*255*/, b_target = 25/*153*/;
 		//GColor first = getFirstGColorFromRGB(r_target, g_target, b_target);
@@ -21,14 +21,29 @@ void draw_custom_layer(Layer *cell_layer, GContext *ctx){
 	
 		//draw_dithered_rect(ctx, GRect(0,0,144,168), first, second, recommended);
 		
+    draw_dithered_text_from_RGB(ctx, "HELLO", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,10,130,30), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL, 
+                      GColorOxfordBlue, 255, 0, 0 );
+    
+    draw_dithered_text_from_RGB(ctx, "WORLD", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,40,130,30), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL, 
+                  GColorOxfordBlue, 255, 106, 0 );
+  
+    draw_dithered_text_from_RGB(ctx, "IN FULL", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,70,130,30), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL, 
+                  GColorOxfordBlue, 0, 38,  255  );
+  
+    draw_dithered_text_from_RGB(ctx, "DITHER", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,100,130,30), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL, 
+                  GColorOxfordBlue, 0, 19, 127 );
+  
+    draw_dithered_text_from_RGB(ctx, "COLOR", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,130,130,30), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL, 
+                  GColorOxfordBlue, 255, 255, 255 );
+
 
     
     ///********* YG TESTS JUN-17-2015
 		// draw_dithered_rect_from_RGB(ctx, GRect(140,0,144,20), 255, 55, 36);
-    draw_dithered_rect_from_RGB(ctx, GRect(0,140,144,20), r_rand, g_rand, b_rand);
+  //  draw_dithered_rect_from_RGB(ctx, GRect(0,140,144,20), r_rand, g_rand, b_rand);
   
-    draw_dithered_text_from_RGB(ctx, "HELLO WORLD", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,50,130,100), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL, 
-                      bg,  r_rand, g_rand, b_rand);
+   // draw_dithered_text_from_RGB(ctx, "HELLO WORLD", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,50,130,100), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL, 
+     //                 bg,  r_rand, g_rand, b_rand);
     ///***********
   
   
@@ -105,6 +120,13 @@ void init(void){
 	my_window = window_create();
 	//window_set_fullscreen(my_window, true);
 	
+  #ifndef PBL_COLOR
+    window_set_background_color(my_window, GColorBlack);
+  #else
+    window_set_background_color(my_window, GColorOxfordBlue);
+  #endif
+    
+	
 	//init_rand();
 	
 	bg = GColorWhite;
@@ -118,7 +140,7 @@ void init(void){
 	
 	light_enable(true);
 	
-	color_tick();
+	//color_tick();
 	
 	//start_transitioning_rect(custom_layer, 100);
 }
