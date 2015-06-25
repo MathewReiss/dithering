@@ -22,12 +22,14 @@ void draw_custom_layer(Layer *cell_layer, GContext *ctx){
     
     ///********* YG TESTS JUN-17-2015
 		// draw_dithered_rect_from_RGB(ctx, GRect(140,0,144,20), 255, 55, 36);
-    draw_dithered_rect(ctx, GRect(0,140,144,20), GColorOxfordBlue, GColorChromeYellow, DITHER_50_PERCENT);
+    //draw_dithered_rect(ctx, GRect(0,140,144,20), GColorOxfordBlue, GColorChromeYellow, DITHER_50_PERCENT);
   
-    draw_dithered_text(ctx, "HELLO WORLD", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,50,130,100), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL, 
-                      GColorWhite,  GColorOxfordBlue, GColorChromeYellow, DITHER_50_PERCENT);
+    //draw_dithered_text(ctx, "HELLO WORLD", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,50,130,100), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL, 
+    //                  GColorWhite,  GColorOxfordBlue, GColorChromeYellow, DITHER_50_PERCENT);
     ///***********
   
+		draw_smooth_gradient_rect(ctx, GRect(0,0,72,168), GColorBlue, GColorRed, TOP_TO_BOTTOM);
+		draw_gradient_rect(ctx, GRect(72,0,72,168), GColorBlue, GColorRed, TOP_TO_BOTTOM);
   
 		
 		//draw_gradient_rect(ctx, GRect(0,0,144,168), GColorDarkGray, GColorClear, BOTTOM_TO_TOP);
