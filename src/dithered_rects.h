@@ -1,5 +1,6 @@
-#include <pebble.h>
 //From https://github.com/MathewReiss/dithering
+
+#include <pebble.h>
 
 typedef enum{
 	TOP_TO_BOTTOM,
@@ -29,7 +30,7 @@ typedef enum{
 } DitherPercentage;
 
 //=========================================================================================================================
-// CONVERSION
+// CONVERSION (Mathew Reiss)
 //=========================================================================================================================
 
 DitherPercentage getDitherFromPercentage(int percentage){
@@ -74,7 +75,7 @@ int getPercentageFromDither(DitherPercentage dither){
 }
 
 //=========================================================================================================================
-// DITHERED RECTS
+// DITHERED RECTS (Mathew Reiss)
 //=========================================================================================================================
 
 void draw_zero_percent(GContext *ctx, GRect bounds, GColor first){
@@ -165,7 +166,7 @@ void draw_dithered_rect(GContext *ctx, GRect bounds, GColor first_color, GColor 
 }
 
 //=========================================================================================================================
-// RANDOM DITHERED RECTS
+// RANDOM DITHERED RECTS (Mathew Reiss)
 //=========================================================================================================================
 
 void init_rand(){
@@ -188,7 +189,7 @@ void draw_random_dithered_rect(GContext *ctx, GRect bounds, GColor first_color, 
 		}
 	}
 }
-//draw_dithered_rect(ctx, GRect(x_start+(i*width/110)-1, y_start, 1+width/11, height), first, second, getDitherFromPercentage(i));
+
 void draw_random_gradient_rect(GContext *ctx, GRect bounds, GColor first_color, GColor second_color, GradientDirection gradient){
 	int x_start = bounds.origin.x;
 	int y_start = bounds.origin.y;
@@ -224,7 +225,7 @@ void draw_random_gradient_rect(GContext *ctx, GRect bounds, GColor first_color, 
 }
 
 //=========================================================================================================================
-// DITHERED CIRCLES
+// DITHERED CIRCLES (Mathew Reiss)
 //=========================================================================================================================
 
 void draw_zero_percent_circle(GContext *ctx, int x_center, int y_center, int radius, GColor first){
@@ -321,7 +322,7 @@ void draw_dithered_circle(GContext *ctx, int x_center, int y_center, int radius,
 }
 
 //=========================================================================================================================
-// TRANSITIONS
+// TRANSITIONS (Mathew Reiss, Thomas Hunsaker)
 //=========================================================================================================================
 
 AppTimer *transition_timer;
@@ -399,7 +400,7 @@ void stop_transitioning_rect(){
 }
 
 //=========================================================================================================================
-// GRADIENTS
+// RAW GRADIENTS (Mathew Reiss)
 //=========================================================================================================================
 
 void draw_top_to_bottom(GContext *ctx, int x_start, int y_start, int width, int height, GColor first, GColor second){
@@ -448,7 +449,7 @@ void draw_gradient_rect(GContext *ctx, GRect bounds, GColor first_color, GColor 
 }
 
 //=========================================================================================================================
-// COLOR ARRAY FROM SINGLE HEX VALUE
+// COLOR ARRAY FROM SINGLE RGB OR HEX VALUE (Mathew Reiss)
 //=========================================================================================================================
 
 #ifdef PBL_COLOR
@@ -531,15 +532,13 @@ void draw_dithered_rect_from_HEX(GContext *ctx, GRect bounds, int hex){
 	draw_dithered_rect_from_RGB(ctx, bounds, r_from_hex, g_from_hex, b_from_hex);
 }
 
-
-/******************************************************************************************
-************************* DRAW MASKED DITHEREDED COLORS (including texts)******************
-*********************************** (by Yuriy)*********************************************/
-
+//=========================================================================================================================
+// DRAW MASKED DITHERED COLORS - INCLUDING TEXT (Yuriy Galanter)
+//=========================================================================================================================
 
 /*********************** UTILITY FUNCTIONS *********************/  
 
-// helper function that finds inverted color;  
+//Helper function that finds inverted color;  
 GColor color_inverted(GColor source) {
   GColor inverted = source;
   if(gcolor_equal(source, GColorBlack)) 
@@ -551,12 +550,12 @@ GColor color_inverted(GColor source) {
   return inverted;
 }     
   
-// set pixel color at given coordinates 
+//Set pixel color at given coordinates 
 void set_pixel(uint8_t *bitmap_data, int bytes_per_row, int y, int x, uint8_t color) {
    bitmap_data[y*bytes_per_row + x] = color; // in Basalt - simple set entire byte
 }
 
-// get pixel color at given coordinates 
+//Get pixel color at given coordinates 
 uint8_t get_pixel(uint8_t *bitmap_data, int bytes_per_row, int y, int x) {
    return bitmap_data[y*bytes_per_row + x]; // in Basalt - simple get entire byte
 }
@@ -717,11 +716,7 @@ void draw_dithered_mask(uint8_t *bitmap_data, int bytes_per_row, GRect bounds, G
 	}
 }
 
-
-
-
 /*********************** Drawing dithered text *********************/ 
-
 
 // draws dithered text  
 // First 6 params same as for "graphics_draw_text"
@@ -749,7 +744,6 @@ void draw_dithered_text(GContext *ctx, const char * text, GFont font, GRect boun
   
 }  
 
-
 // draws dithered text from RGB colors
 // First 6 params same as for "graphics_draw_text"
 // background color: pass color of the background
@@ -765,15 +759,116 @@ void draw_dithered_text_from_RGB(GContext *ctx, const char * text, GFont font, G
 	draw_dithered_text(ctx, text, font, bounds, overflow_mode, alignment, layout, background_color, first, second, recommended);
 }
 
-
-
-
-
-
-
-
-
-
-
-
 #endif
+	
+//=========================================================================================================================
+// SMOOTH GRADIENTS (Morris Timm)
+//=========================================================================================================================
+	
+#ifdef PBL_PLATFORM_BASALT
+
+#define CHANNEL_DISTANCE(X, Y) ((X)>(Y)?(X)-(Y):(Y)-(X))
+
+// find the distance between the two colors by determining the distance for each channel separately and use the greatest
+uint8_t get_color_distance(GColor first_color, GColor second_color) {
+  uint8_t distance = 0;
+  uint8_t dr = CHANNEL_DISTANCE(first_color.r, second_color.r);
+  uint8_t dg = CHANNEL_DISTANCE(first_color.g, second_color.g);
+  uint8_t db = CHANNEL_DISTANCE(first_color.b, second_color.b);
+  if(dr > distance) distance = dr;
+  if(dg > distance) distance = dg;
+  if(db > distance) distance = db;
+  
+  // if the greatest distance is 2 and there is at least one distance 1, distance 3 looks better
+  if(2 == distance) {
+    if(1 == dr || 1 == dg || 1 == db) {
+      distance = 3;
+    }
+  }
+  return distance;
+}
+
+// get the value of a channel based for the current step
+uint8_t get_channel_for_step(uint8_t first, uint8_t second, uint8_t step) {
+  uint8_t channel = first;
+  if(first > second) {
+    switch(first-second) {
+      case 1: channel = (1 == step ? first : second); break;
+      case 2: channel = first - 1; break;
+      case 3: channel = first - step; break;
+    }
+  } else
+  if(first < second) {
+    switch(second-first) {
+      case 1: channel = (1 == step ? first : second); break;
+      case 2: channel = first + 1; break;
+      case 3: channel = first + step; break;
+    }
+  }
+  return channel;
+}
+
+// draw one smooth gradient rect consisting of up to 3 gradient rects
+// the gradient looks smoother (most of the time) by calculating up to two colors in between the two specified colors
+// if the color distance is 1, the result ist the same as a normal gradient rect
+void draw_smooth_gradient_rect(GContext *ctx, GRect bounds, GColor first_color, GColor second_color, GradientDirection direction) {
+  uint8_t steps = get_color_distance(first_color, second_color);
+  GColor gradient_colors[4] = {first_color, second_color, second_color, second_color};
+  for(uint8_t i = 1; i < steps; ++i) {
+    gradient_colors[i].r = get_channel_for_step(first_color.r, second_color.r, i);
+    gradient_colors[i].g = get_channel_for_step(first_color.g, second_color.g, i);
+    gradient_colors[i].b = get_channel_for_step(first_color.b, second_color.b, i);
+  }
+  
+  switch(direction) {
+    case TOP_TO_BOTTOM:
+      for(uint8_t i = 0; i < steps; ++i) {
+        draw_gradient_rect(ctx, GRect(bounds.origin.x, bounds.origin.y+((bounds.size.h/steps)*i), bounds.size.w, bounds.size.h/steps), gradient_colors[i], gradient_colors[i+1], TOP_TO_BOTTOM);
+      }
+      break;
+    case BOTTOM_TO_TOP: draw_smooth_gradient_rect(ctx, bounds, second_color, first_color, TOP_TO_BOTTOM); break;
+    
+    case LEFT_TO_RIGHT:
+      for(uint8_t i = 0; i < steps; ++i) {
+        draw_gradient_rect(ctx, GRect(bounds.origin.x+((bounds.size.w/steps)*i), bounds.origin.y, bounds.size.w/steps, bounds.size.h), gradient_colors[i], gradient_colors[i+1], LEFT_TO_RIGHT);
+      }
+      break;
+    case RIGHT_TO_LEFT: draw_smooth_gradient_rect(ctx, bounds, second_color, first_color, LEFT_TO_RIGHT); break;
+    
+    default: break;
+  }
+}
+
+//=========================================================================================================================
+// SMOOTH + RANDOM GRADIENTS (Mathew Reiss)
+//=========================================================================================================================	
+	
+void draw_smooth_random_gradient_rect(GContext *ctx, GRect bounds, GColor first_color, GColor second_color, GradientDirection direction) {
+  uint8_t steps = get_color_distance(first_color, second_color);
+  GColor gradient_colors[4] = {first_color, second_color, second_color, second_color};
+  for(uint8_t i = 1; i < steps; ++i) {
+    gradient_colors[i].r = get_channel_for_step(first_color.r, second_color.r, i);
+    gradient_colors[i].g = get_channel_for_step(first_color.g, second_color.g, i);
+    gradient_colors[i].b = get_channel_for_step(first_color.b, second_color.b, i);
+  }
+  
+  switch(direction) {
+    case TOP_TO_BOTTOM:
+      for(uint8_t i = 0; i < steps; ++i) {
+        draw_random_gradient_rect(ctx, GRect(bounds.origin.x, bounds.origin.y+((bounds.size.h/steps)*i), bounds.size.w, bounds.size.h/steps), gradient_colors[i], gradient_colors[i+1], TOP_TO_BOTTOM);
+      }
+      break;
+    case BOTTOM_TO_TOP: draw_smooth_gradient_rect(ctx, bounds, second_color, first_color, TOP_TO_BOTTOM); break;
+    
+    case LEFT_TO_RIGHT:
+      for(uint8_t i = 0; i < steps; ++i) {
+        draw_random_gradient_rect(ctx, GRect(bounds.origin.x+((bounds.size.w/steps)*i), bounds.origin.y, bounds.size.w/steps, bounds.size.h), gradient_colors[i], gradient_colors[i+1], LEFT_TO_RIGHT);
+      }
+      break;
+    case RIGHT_TO_LEFT: draw_smooth_gradient_rect(ctx, bounds, second_color, first_color, LEFT_TO_RIGHT); break;
+    
+    default: break;
+  }
+}
+
+#endif // PBL_PLATFORM_BASALT 

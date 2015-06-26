@@ -10,6 +10,10 @@ int r_rand = 0, g_rand = 0, b_rand = 0;
 
 GColor bg;
 
+int get_rand(){
+	return rand()%255;
+}
+
 void draw_custom_layer(Layer *cell_layer, GContext *ctx){
 		//graphics_context_set_fill_color(ctx, bg);
 		//graphics_fill_rect(ctx, GRect(0,0,144,168), 0, GCornerNone);
@@ -21,22 +25,25 @@ void draw_custom_layer(Layer *cell_layer, GContext *ctx){
 	
 		//draw_dithered_rect(ctx, GRect(0,0,144,168), first, second, recommended);
 		
-    draw_dithered_text_from_RGB(ctx, "HELLO", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,10,130,30), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL, 
-                      GColorOxfordBlue, 255, 0, 0 );
+    /*draw_dithered_text_from_RGB(ctx, "HELLO", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,10,130,30), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL, 
+                      GColorOxfordBlue, get_rand(), get_rand(), get_rand() );
     
     draw_dithered_text_from_RGB(ctx, "WORLD", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,40,130,30), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL, 
-                  GColorOxfordBlue, 255, 106, 0 );
+                  GColorOxfordBlue, get_rand(), get_rand(), get_rand() );
   
     draw_dithered_text_from_RGB(ctx, "IN FULL", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,70,130,30), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL, 
-                  GColorOxfordBlue, 0, 38,  255  );
+                  GColorOxfordBlue, get_rand(), get_rand(),  get_rand()  );
   
     draw_dithered_text_from_RGB(ctx, "DITHER", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,100,130,30), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL, 
-                  GColorOxfordBlue, 0, 19, 127 );
+                  GColorOxfordBlue, get_rand(), get_rand(), get_rand() );
   
     draw_dithered_text_from_RGB(ctx, "COLOR", fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK), GRect(10,130,130,30), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL, 
-                  GColorOxfordBlue, 255, 255, 255 );
-
-
+                  GColorOxfordBlue, get_rand(), get_rand(), get_rand() );
+	*/
+		
+		draw_smooth_gradient_rect(ctx, GRect(0,0,72,84), GColorBlack, GColorWhite, TOP_TO_BOTTOM);
+		draw_smooth_gradient_rect(ctx, GRect(0,84,72,84), GColorWhite, GColorBlack, TOP_TO_BOTTOM);
+		draw_smooth_gradient_rect(ctx, GRect(72,0,72,168), GColorBlue, GColorRed, TOP_TO_BOTTOM);
     
     ///********* YG TESTS JUN-17-2015
 		// draw_dithered_rect_from_RGB(ctx, GRect(140,0,144,20), 255, 55, 36);
@@ -100,18 +107,18 @@ void move_tick(){
 }
 
 void color_tick(){
-	r_rand = rand()%255;
-	g_rand = rand()%255;
-	b_rand = rand()%255;
+	//r_rand = rand()%255;
+	//g_rand = rand()%255;
+	//b_rand = rand()%255;
 	
-	if(r_rand + g_rand + b_rand > 382) bg = GColorBlack;
-	else bg = GColorWhite;
+	//if(r_rand + g_rand + b_rand > 382) bg = GColorBlack;
+	//else bg = GColorWhite;
 	
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "%03d,%03d,%03d", r_rand, g_rand, b_rand);
+	//APP_LOG(APP_LOG_LEVEL_DEBUG, "%03d,%03d,%03d", r_rand, g_rand, b_rand);
 	
 	layer_mark_dirty(custom_layer);
 	
-	app_timer_register(3000, color_tick, NULL);
+	app_timer_register(100, color_tick, NULL);
 }
 
 void init(void){
